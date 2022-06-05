@@ -124,7 +124,35 @@ describe("spatial tree", () => {
         const spatialTree = new SpatialTree(points);
         const result = spatialTree.query(boundingBox);
         expect(result.length).toBe(1);
-        console.log(result);
         expect(arePointsEqual(points[0], result[0])).toBe.true;
+    });
+
+    test("spatial tree distinguishes between found and non-found points in slightly larger dataset", () => {
+        const points = [
+            new Point(10, 20),
+            new Point(0, 20),
+            new Point(1, 20),
+            new Point(10, 20.54),
+            new Point(10.333, 20),
+            new Point(50, 20),
+            new Point(-10, 20),
+            new Point(-10, 70),
+            new Point(10, 80),
+            new Point(10, 20),
+            new Point(10, -20),
+            new Point(10, 20),
+            new Point(90, 20),
+            new Point(30, 20),
+            new Point(10, 20),
+            new Point(20, 20),
+            new Point(50, 50),
+        ];
+        const boundingBox = new BoundingBox(
+            new Point(0, 0),
+            new Point(40, 40),
+        );
+        const spatialTree = new SpatialTree(points);
+        const result = spatialTree.query(boundingBox);
+        expect(result.length).toBe(10);
     });
 });

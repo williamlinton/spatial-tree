@@ -35,6 +35,11 @@ function splitRectangle(parentRect, points, startIndex, endIndex, depth) {
         const leftMaxLng = points[middleItemIndex].lng;
         const rightMinLng = points[middleItemIndex + 1].lng;
 
+        const minLat = points[startIndex].lat;
+        const minLng = points[startIndex].lng;
+        const maxLat = points[endIndex].lat;
+        const maxLng = points[endIndex].lng;
+
         const leftRect = new Rectangle(
             new BoundingBox(
                 new Point(minLat, minLng),
@@ -71,7 +76,7 @@ function doesPointFallWithinBoundingBox(point, box) {
 
 function SpatialTree(points) {
     this.rectangles = [];
-    this.depth = 0;
+    this.depth = 1;
     this.points = [ ...points ];
 
     let minLat = 999;
@@ -118,6 +123,21 @@ SpatialTree.prototype.query = function (boundingBox) {
     const result = [];
     let currentDepth = this.depth;
     let rectangles = [ this.rootRect ];
+
+    while (currentDepth > 0) {
+        let currentRectangles = [];
+        for (let r = 0; r < rectangles.length; r++) {
+            const rect = rectangles[r];
+            for (let c = 0; c < rect.children.length; c++) {
+                const child = rect.children[c];
+                if (doBoundingBoxesOverlap(boundingBox, child.boundingBox)) {
+                    currentRectangles.push(child);
+                }
+            }
+        }
+        rectangles = currentRectangles;
+        currentDepth--;
+    }
 
     for (let r = 0; r < rectangles.length; r++) {
         const rect = rectangles[r];
